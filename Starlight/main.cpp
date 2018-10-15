@@ -30,7 +30,7 @@ public:
 		capacity = newCapacity;
 		storage = newStorage;
 	}
-	//edited
+	//edited...?
 	void ensureCapacity(int minCapacity)
 	{
 		if (minCapacity > capacity) {
@@ -41,6 +41,7 @@ public:
 			setCapacity(newCapacity);
 		}
 	}
+	//bug exist after deleted a record
 	void rangeCheck(int index) {
 		if (index < 0 || index >= size)
 			throw "Index out of bounds!";
@@ -71,6 +72,25 @@ public:
 		storage[index] = content;
 		size++;
 	}
+
+	void searchByID(string key, int st, int ed) {
+		int mid = (st + ed) / 2;
+		string temp = get(mid);
+		// cout << temp << endl; // debug
+		// cout << key << endl; // debug
+		// cout << temp.compare(0, 9, key) << endl; // debug
+		if (temp.compare(0, 9, key) == 0) {
+			removeAt(mid);
+		}
+		else if (st == mid || mid == ed) {
+			cout << "target not found" << endl;
+		}
+		else if (temp.compare(0, 9, key) > 0) {
+			searchByID(key, st, mid - 1);
+		}
+		else searchByID(key, mid + 1, ed);
+	}
+
 };
 
 int main() {
@@ -79,20 +99,43 @@ int main() {
 	int position = 0;
 	string name;
 	ifstream inputFile;
-	cin >> name;
-	inputFile.open(name.c_str());
-	if (inputFile.is_open()) {
-		string temp;
-		while (getline(inputFile,temp)) {
-			unmei.insertAt(position, temp);
-			cout << unmei.get(position) << endl;
-			position++;
-			temp.clear();
+	//can be developed as a control loop
+	while (true) {
+		cout << "enter the file path with xxx.txt format (e.g. DataSet1_1000.txt)" << endl;
+		cin >> name;
+		inputFile.open(name.c_str());
+		if (inputFile.is_open()) {
+			string temp;
+			while (getline(inputFile, temp)) {
+				unmei.insertAt(position, temp);
+				//cout << unmei.get(position) << endl; //bebug message, can be deleted
+				position++;
+				temp.clear();
+			}
+			inputFile.close();
+			name.clear();
 		}
-		inputFile.close();
+		else {
+			cout << "Insert part ended. Move to delet part." << endl;
+			break;
+		}
 	}
-	else cout << "error";
 
+	//binary search
+	string theQuery;
+	while (true) {
+		cout << "support id search only, plz input as 'ttXXXXXXX' format " << endl;
+		cin >> theQuery;
+		if (theQuery.compare("end") == 0) {
+			cout << "delete part end. show updated record" << endl;
+			break;
+		}
+		unmei.searchByID(theQuery, 0, position - 1);
+		position--;
+		theQuery.clear();
+	}
+
+	//bebug message, can be deleted
 	for (int i = 0; i < position; i++) {
 		cout << unmei.get(i) << endl;
 	}
